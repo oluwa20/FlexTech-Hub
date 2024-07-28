@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Courses</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container mt-5">
+    <h2>All Courses</h2>
+
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <input type="text" class="form-control" id="searchKeyword" placeholder="Search by course name...">
+      </div>
+      <div class="col-md-4">
+        <select class="form-control" id="categoryFilter">
+          <option value="">All Categories</option>
+          <option value="React">React</option>
+          <option value="Javascript">Javascript</option>
+          <option value="Sql">Sql</option>
+         
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-primary" onclick="filterCourses()">Search</button>
+      </div>
+    </div>
+
+    
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Course ID</th>
+          <th>Course Name</th>
+          <th>Category</th>
+          <th>Level</th>
+          <th>Price</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="coursesTable">
+       
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    async function fetchCourses() {
+      try {
+        const response = await fetch('http://shouldelete-001-site1.etempurl.com/api/Course/GetAll', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch courses');
+        }
+
+        const courses = await response.json();
+        displayCourses(courses);
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+        alert('An error occurred while fetching courses.');
+      }
+    }
+
+    function displayCourses(courses) {
+      const coursesTable = document.getElementById('coursesTable');
+      coursesTable.innerHTML = '';
+
+      courses.forEach(course => {
+        const row = `
+          <tr>
+            <td>${course.courseId}</td>
+            <td>${course.courseName}</td>
+            <td>${course.category}</td>
+            <td>${course.level}</td>
+            <td>$${course.price}</td>
+            <td>
+              <a href="CourseDetails.html?courseId=${course.courseId}" class="btn btn-info btn-sm">Details</a>
+              <a href="UpdateCourse.html?courseId=${course.courseId}" class="btn btn-warning btn-sm">Update</a>
+              <a href="DeleteCourse.html?courseId=${course.courseId}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+          </tr>
+        `;
+        coursesTable.insertAdjacentHTML('beforeend', row);
+      });
+    }
+
+    async function filterCourses() {
+      const searchKeyword = document.getElementById('searchKeyword').value.trim();
+      const categoryFilter = document.getElementById('categoryFilter').value;
+
+      try {
+        let url = 'http://shouldelete-001-site1.etempurl.com/api/Course/SearchCourse';
+
+        if (categoryFilter) {
+          url = 'http://shouldelete-001-site1.etempurl.com/api/Course/GetCoursesByCategory';
+        }
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            keyword: searchKeyword,
+            category: categoryFilter
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to search courses');
+        }
+
+        const filteredCourses = await response.json();
+        displayCourses(filteredCourses);
+      } catch (error) {
+        console.error('Error searching courses:', error);
+        alert('An error occurred while searching courses.');
+      }
+    }
+
+    window.onload = fetchCourses;
+  </script>
+</body>
+</html>
