@@ -21,7 +21,7 @@
         </tr>
       </thead>
       <tbody>
-        <!-- User rows will be appended here -->
+       
       </tbody>
     </table>
   </div>
@@ -38,7 +38,7 @@
       const users = await response.json();
 
       const usersTableBody = document.getElementById('usersTable').querySelector('tbody');
-      usersTableBody.innerHTML = ''; // Clear existing rows
+      usersTableBody.innerHTML = ''; 
       users.forEach(user => {
         const row = document.createElement('tr');
         row.innerHTML = `

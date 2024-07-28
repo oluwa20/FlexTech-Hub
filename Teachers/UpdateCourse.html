@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Teacher Course</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container mt-5">
+    <h2>Update Teacher Course</h2>
+    <form id="updateCourseForm">
+      <div class="mb-3">
+        <label for="teacherId" class="form-label">Teacher ID</label>
+        <input type="text" class="form-control" id="teacherId" readonly>
+      </div>
+      <div class="mb-3">
+        <label for="courseId" class="form-label">Course ID</label>
+        <input type="text" class="form-control" id="courseId" readonly>
+      </div>
+      <div class="mb-3">
+        <label for="courseName" class="form-label">Course Name</label>
+        <input type="text" class="form-control" id="courseName" required>
+      </div>
+      <div class="mb-3">
+        <label for="price" class="form-label">Price</label>
+        <input type="text" class="form-control" id="price" required>
+      </div>
+      <div class="mb-3">
+        <label for="level" class="form-label">Level</label>
+        <input type="text" class="form-control" id="level" required>
+      </div>
+      <div class="mb-3">
+        <label for="rating" class="form-label">Rating</label>
+        <input type="text" class="form-control" id="rating" required>
+      </div>
+      <div class="mb-3">
+        <label for="status" class="form-label">Status</label>
+        <input type="text" class="form-control" id="status" required>
+      </div>
+      <div class="mb-3">
+        <label for="courseStartDate" class="form-label">Course Start Date</label>
+        <input type="date" class="form-control" id="courseStartDate" required>
+      </div>
+      <div class="mb-3">
+        <label for="courseEndDate" class="form-label">Course End Date</label>
+        <input type="date" class="form-control" id="courseEndDate" required>
+      </div>
+      <div class="mb-3">
+        <label for="courseDuration" class="form-label">Course Duration</label>
+        <input type="text" class="form-control" id="courseDuration" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Update Course</button>
+    </form>
+  </div>
+
+  <script>
+    async function fetchCourseDetails(courseId) {
+      try {
+        const response = await fetch(`http://shouldelete-001-site1.etempurl.com/api/TeacherCourse/GetById/${courseId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch course details');
+        }
+
+        const course = await response.json();
+        document.getElementById('teacherId').value = course.teacherId;
+        document.getElementById('courseId').value = course.courseId;
+        document.getElementById('courseName').value = course.courseName;
+        document.getElementById('price').value = course.price;
+        document.getElementById('level').value = course.level;
+        document.getElementById('rating').value = course.rating;
+        document.getElementById('status').value = course.status;
+        document.getElementById('courseStartDate').value = new Date(course.courseStartDate).toISOString().split('T')[0];
+        document.getElementById('courseEndDate').value = new Date(course.courseEndDate).toISOString().split('T')[0];
+        document.getElementById('courseDuration').value = course.courseDuration;
+      } catch (error) {
+        console.error('Error fetching course details:', error);
+        alert('An error occurred while fetching course details.');
+      }
+    }
+
+    async function updateCourse(courseId) {
+      const courseName = document.getElementById('courseName').value;
+      const price = document.getElementById('price').value;
+      const level = document.getElementById('level').value;
+      const rating = document.getElementById('rating').value;
+      const status = document.getElementById('status').value;
+      const courseStartDate = document.getElementById('courseStartDate').value;
+      const courseEndDate = document.getElementById('courseEndDate').value;
+      const courseDuration = document.getElementById('courseDuration').value;
+
+      const data = {
+        courseName,
+        price,
+        level,
+        rating,
+        status,
+        courseStartDate,
+        courseEndDate,
+        courseDuration
+      };
+
+      try {
+        const response = await fetch(`http://shouldelete-001-site1.etempurl.com/api/TeacherCourse/Update/${courseId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          alert('Course updated successfully');
+          window.location.href = 'all-courses.html'; 
+        } else {
+          const errorData = await response.json();
+          alert('Failed to update course: ' + errorData.message);
+        }
+      } catch (error) {
+        console.error('Error updating course:', error);
+        alert('An error occurred while updating the course.');
+      }
+    }
+
+    document.getElementById('updateCourseForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const courseId = document.getElementById('courseId').value;
+      updateCourse(courseId);
+    });
+
+    window.onload = function() {
+      const courseId = new URLSearchParams(window.location.search).get('courseId');
+      if (courseId) {
+        fetchCourseDetails(courseId);
+      } else {
+        alert('Course ID is missing in the URL');
+      }
+    }
+  </script>
+</body>
+</html>
